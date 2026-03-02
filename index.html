@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+	<title>JS</title>
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+		}
+		.block {
+			width: 200px;
+			height: 50px;
+			background: #f00;
+		}
+	</style>
+</head>
+<body>
+	<div class="block"></div>
+	<button id="txt">Вкл. текст</button>
+	<button id="menu">Меню</button>
+	<script type="text/javascript">
+		let is_menu = true
+		$('#menu').on('click', function(){
+			if (is_menu){
+				is_menu = false;
+				$('.block').fadeOut();
+			} else {
+				is_menu = true;
+				$('.block').fadeIn();
+			}
+		})
+
+		let is_text = false;
+		$('#txt').on('click', function(){
+			if (is_text){
+				is_text = false;
+				$('.block').html('');
+				$('#txt').html('вкл. текст');
+				$('#txt').css('background', '#0f0');
+			} else {
+				is_text = true;
+				$('.block').html('Это блок...');
+				$('#txt').html('выкл. текст');
+				$('#txt').css('background', '#f00');
+			}
+		});
+	</script>
+</body>
+</html>
