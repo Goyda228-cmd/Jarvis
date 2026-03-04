@@ -136,22 +136,9 @@ def run_command(text):
         ui_queue.put(("clear", None))
         return "Экран очищен"
 
-# === ВЫХОД ИЗ JARVIS ===
-exit_commands = [
-    "выход",
-    "выйди",
-    "закройся",
-    "закрывайся",
-    "выключись",
-    "отключись",
-    "заверши работу",
-    "стоп джарвис",
-    "пока джарвис"
-]
-
-if any(cmd in text for cmd in exit_commands):
-    root.after(500, root.destroy)
-    return "Выключаюсь"
+    if "выход" in text:
+        root.after(500, root.destroy)
+        return "Выключаюсь"
         # ГРОМКОСТЬ
     if "громкость 100" in text:
         set_volume(100)
