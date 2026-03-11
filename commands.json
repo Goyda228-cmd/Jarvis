@@ -1,0 +1,198 @@
+{
+  "assistant": {
+    "name": "Jarvis",
+    "language": "ru-RU",
+    "version": "1.0"
+  },
+
+  "voice": {
+    "wake_words": ["джарвис", "jarvis", "жарвис"],
+    "activation_timeout": 5
+  },
+
+  "mouse": {
+    "step": 100,
+    "duration": 0.2
+  },
+
+  "commands": [
+
+    {
+      "name": "youtube",
+      "phrases": ["ютуб", "youtube", "открой ютуб"],
+      "action": "open_url",
+      "value": "https://youtube.com"    
+    },
+
+    {
+      "name": "github",
+      "phrases": ["гитхаб", "github", "открой гитхаб"],
+      "action": "open_url",
+      "value": "https://github.com"
+    },
+
+    {
+      "name": "telegram",
+      "phrases": ["телеграм", "открой телеграм"],
+      "action": "open_program",
+      "value": "tg://resolve"
+    },
+
+    {
+      "name": "steam",
+      "phrases": ["стим", "запусти стим", "открой стим"],
+      "action": "open_program",
+      "value": "steam://open/main"
+    },
+
+    {
+      "name": "task_manager",
+      "phrases": ["диспетчер задач"],
+      "action": "system",
+      "value": "taskmgr"
+    },
+
+    {
+      "name": "lock_pc",
+      "phrases": ["заблокируй компьютер", "блокировка"],
+      "action": "lock"
+    },
+
+    {
+      "name": "restart_pc",
+      "phrases": ["перезагрузи компьютер", "перезагрузка"],
+      "action": "restart"
+    },
+
+    {
+      "name": "shutdown_pc",
+      "phrases": ["выключи компьютер"],
+      "action": "shutdown"
+    },
+
+    {
+      "name": "sleep_pc",
+      "phrases": ["спящий режим"],
+      "action": "sleep"
+    },
+
+    {
+      "name": "volume_up",
+      "phrases": ["громче", "увеличь громкость"],
+      "action": "volume_up"
+    },
+
+    {
+      "name": "volume_down",
+      "phrases": ["тише", "уменьши громкость"],
+      "action": "volume_down"
+    },
+
+    {
+      "name": "volume_50",
+      "phrases": ["громкость 50"],
+      "action": "volume_set",
+      "value": 50
+    },
+
+    {
+      "name": "volume_100",
+      "phrases": ["громкость 100"],
+      "action": "volume_set",
+      "value": 100
+    },
+
+    {
+      "name": "brightness_50",
+      "phrases": ["яркость 50"],
+      "action": "brightness",
+      "value": 50
+    },
+
+    {
+      "name": "brightness_100",
+      "phrases": ["яркость 100"],
+      "action": "brightness",
+      "value": 100
+    },
+
+    {
+      "name": "mouse_up",
+      "phrases": ["вверх"],
+      "action": "mouse_move",
+      "dx": 0,
+      "dy": -1
+    },
+
+    {
+      "name": "mouse_down",
+      "phrases": ["вниз"],
+      "action": "mouse_move",
+      "dx": 0,
+      "dy": 1
+    },
+
+    {
+      "name": "mouse_left",
+      "phrases": ["влево"],
+      "action": "mouse_move",
+      "dx": -1,
+      "dy": 0
+    },
+
+    {
+      "name": "mouse_right",
+      "phrases": ["вправо"],
+      "action": "mouse_move",
+      "dx": 1,
+      "dy": 0
+    },
+
+    {
+      "name": "mouse_click",
+      "phrases": ["клик"],
+      "action": "mouse_click"
+    },
+
+    {
+      "name": "mouse_double_click",
+      "phrases": ["двойной клик"],
+      "action": "mouse_double_click"
+    },
+
+    {
+      "name": "mouse_right_click",
+      "phrases": ["правый клик"],
+      "action": "mouse_right_click"
+    },
+
+    {
+      "name": "mouse_drag_right",
+      "phrases": ["тащи вправо"],
+      "action": "mouse_drag",
+      "dx": 2,
+      "dy": 0
+    },
+
+    {
+      "name": "clear_chat",
+      "phrases": ["очисти экран", "очисти чат"],
+      "action": "clear"
+    },
+
+    {
+      "name": "exit",
+      "phrases": [
+        "выход",
+        "выйди",
+        "выключись",
+        "закройся",
+        "отключись",
+        "стоп джарвис",
+        "пока джарвис"
+      ],
+      "action": "exit"
+    }
+
+  ]
+}

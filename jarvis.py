@@ -3,17 +3,89 @@ import threading
 import requests
 import queue
 import speech_recognition as sr
-import webbrowser
 import subprocess
 import pyttsx3
-import os
 import ctypes
 import screen_brightness_control as sbc
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 from comtypes import CLSCTX_ALL
 import pyautogui
+import random
+import edge_tts
+import asyncio
+import pygame
+import tempfile
+import json
+import os
+import webbrowser
+import pyautogui
+import uuid
+import asyncio
+import sys
+from reactor_ui import start_reactor
+from voice import start_voice_mode
+import tkinter as tk
 
-pyautogui.FAILSAFE = False
+def start_reactor():
+
+    root = tk.Tk()
+    root.title("Jarvis Reactor")
+    root.geometry("400x500")
+
+    chat = tk.Text(root)
+    chat.pack(expand=True, fill="both")
+
+    entry = tk.Entry(root)
+    entry.pack(fill="x")
+
+    def send(event=None):
+        text = entry.get()
+        chat.insert("end", "Вы: " + text + "\n")
+        entry.delete(0, "end")
+
+    entry.bind("<Return>", send)
+
+    root.mainloop()
+
+mode = "voice"
+
+if len(sys.argv) > 1:
+    mode = sys.argv[1]
+
+if mode == "reactor":
+    print("Запуск Reactor UI")
+    start_reactor()
+
+else:
+    print("Запуск голосового режима")
+    start_voice_mode()
+
+pygame.mixer.init()
+
+async def speak_async(text):
+    filename = f"voice_{uuid.uuid4()}.mp3"
+
+    communicate = edge_tts.Communicate(
+        text=text,
+        voice="ru-RU-DmitryNeural"
+    )
+
+    await communicate.save(filename)
+
+    pygame.mixer.music.load(filename)
+    pygame.mixer.music.play()
+
+    while pygame.mixer.music.get_busy():
+        await asyncio.sleep(0.1)
+
+# загружаем конфиг
+with open("commands.json", "r", encoding="utf-8") as f:
+    config = json.load(f)
+
+commands = config["commands"]
+mouse_settings = config["mouse"]
+wake_words = config["voice"]["wake_words"]
+
 # === НАСТРОЙКИ МЫШИ ===
 MOUSE_STEP = 100
 MOUSE_DURATION = 0.2
@@ -32,6 +104,19 @@ def speak(text):
         engine.runAndWait()
     except:
         pass
+
+def start_voice_mode():
+
+    print("Jarvis слушает...")
+
+    while True:
+
+        text = input("Вы: ")
+
+        if text == "выход":
+            break
+
+        print("Jarvis:", text)
 
 # ================= МЫШКА =================
 
@@ -105,135 +190,46 @@ def ask_phi3(prompt):
 # ================= КОМАНДЫ =================
 
 def run_command(text):
+
     text = text.lower()
 
-    # STEAM (через протокол)
-    if "стим" in text:
-        try:
-            os.startfile("steam://open/main")
-            return "Запускаю Steam"
-        except:
-            return "Steam не найден"
+    for cmd in commands:
 
-    # TELEGRAM (через веб или протокол)
-    if "телеграм" in text:
-        try:
-            os.startfile("tg://resolve")
-            return "Открываю Telegram"
-        except:
-            webbrowser.open("https://web.telegram.org/k/")
-            return "Открываю Telegram Web"
+        for phrase in cmd["phrases"]:
 
-    if "youtube" in text:
-        webbrowser.open("https://youtube.com")
-        return "Открываю YouTube"
+            if phrase in text:
 
-    if "github" in text or "гитхаб" in text:
-        webbrowser.open("https://github.com")
-        return "Открываю GitHub"
+                action = cmd["action"]
 
-    if "очисти" in text:
-        ui_queue.put(("clear", None))
-        return "Экран очищен"
+                if action == "open_url":
+                    webbrowser.open(cmd["value"])
+                    return True
 
-    if "выход" in text:
-        root.after(500, root.destroy)
-        return "Выключаюсь"
-        # ГРОМКОСТЬ
-    if "громкость 100" in text:
-        set_volume(100)
-        return "Громкость 100 процентов"
+                elif action == "open_program":
+                    os.system(cmd["value"])
+                    return True
 
-    if "громкость 50" in text:
-        set_volume(50)
-        return "Громкость 50 процентов"
+                elif action == "system":
+                    os.system(cmd["value"])
+                    return True
 
-    if "тише" in text:
-        change_volume(-0.1)
-        return "Уменьшаю громкость"
+                elif action == "shutdown":
+                    os.system("shutdown /s /t 1")
+                    return True
 
-    if "громче" in text:
-        change_volume(0.1)
-        return "Увеличиваю громкость"
+                elif action == "restart":
+                    os.system("shutdown /r /t 1")
+                    return True
 
-    # ЯРКОСТЬ
-    if "яркость 100" in text:
-        set_brightness(100)
-        return "Яркость на максимум"
+                elif action == "lock":
+                    os.system("rundll32.exe user32.dll,LockWorkStation")
+                    return True
 
-    if "яркость 50" in text:
-        set_brightness(50)
-        return "Яркость 50 процентов"
+                elif action == "exit":
+                    print("Jarvis: выключаюсь")
+                    os._exit(0)
 
-    # БЛОКИРОВКА
-    if "заблокируй" in text:
-        ctypes.windll.user32.LockWorkStation()
-        return "Блокирую компьютер"
-
-    # ПЕРЕЗАГРУЗКА
-    if "перезагрузи" in text:
-        os.system("shutdown /r /t 5")
-        return "Перезагрузка через 5 секунд"
-
-    # ВЫКЛЮЧЕНИЕ
-    if "выключи компьютер" in text:
-        os.system("shutdown /s /t 5")
-        return "Выключение через 5 секунд"
-
-    # ДИСПЕТЧЕР ЗАДАЧ
-    if "диспетчер задач" in text:
-        os.system("taskmgr")
-        return "Открываю диспетчер задач"
-
-    # СПЯЩИЙ РЕЖИМ
-    if "спящий режим" in text:
-        os.system("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
-        return "Переход в спящий режим"
-       
-    global MOUSE_STEP, MOUSE_DURATION
-
-    # === СКОРОСТЬ ===
-
-    if "быстрее" in text:
-        MOUSE_DURATION = max(0.01, MOUSE_DURATION - 0.05)
-        return f"Скорость увеличена"
-
-    if "медленнее" in text:
-        MOUSE_DURATION += 0.05
-        return f"Скорость уменьшена"
-
-    if "скорость" in text:
-        try:
-            value = int(text.split()[-1])
-            MOUSE_STEP = value
-            return f"Шаг мыши {value} пикселей"
-        except:
-            return "Не понял значение скорости"
-
-    # === ДВИЖЕНИЕ ===
-
-    if "вправо" in text:
-        move_mouse(MOUSE_STEP, 0)
-        return "Двигаю вправо"
-
-    if "влево" in text:
-        move_mouse(-MOUSE_STEP, 0)
-        return "Двигаю влево"
-
-    if "вверх" in text:
-        move_mouse(0, -MOUSE_STEP)
-        return "Двигаю вверх"
-
-    if "вниз" in text:
-        move_mouse(0, MOUSE_STEP)
-        return "Двигаю вниз"
-
-    if "тащи вправо" in text:
-        drag_mouse(MOUSE_STEP * 2, 0)
-        return "Перетаскиваю вправо"
-
-    return None
-
+    return False
 
 # ================= AI =================
 
@@ -334,6 +330,28 @@ def voice_loop():
         except Exception as e:
             ui_queue.put(("text", f"Ошибка: {e}"))
             ui_queue.put(("status", "Ожидание команды..."))
+
+def speak(text):
+    async def _speak():
+        voice = "ru-RU-DmitryNeural"  # мужской голос
+        communicate = edge_tts.Communicate(text, voice)
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as f:
+            filename = f.name
+
+        await communicate.save(filename)
+
+        pygame.mixer.init()
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+
+        while pygame.mixer.music.get_busy():
+            pygame.time.Clock().tick(10)
+
+    try:
+        asyncio.run(_speak())
+    except:
+        pass
 
 # ================= UI =================
 
