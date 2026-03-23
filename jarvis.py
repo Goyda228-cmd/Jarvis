@@ -98,19 +98,33 @@ pygame.mixer.init()
 async def speak_async(text):
     filename = f"voice_{uuid.uuid4()}.mp3"
 
-    communicate = edge_tts.Communicate(
-        text=text,
-        voice="ru-RU-DmitryNeural"
-    )
+    try:
+        communicate = edge_tts.Communicate(
+            text=text,
+            voice="ru-RU-DmitryNeural"
+        )
 
-    await communicate.save(filename)
+        await communicate.save(filename)
 
-    pygame.mixer.music.load(filename)
-    pygame.mixer.music.play()
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
 
-    while pygame.mixer.music.get_busy():
-        await asyncio.sleep(0.1)
+        while pygame.mixer.music.get_busy():
+            await asyncio.sleep(0.1)
 
+    finally:
+        # 🔥 гарантированное удаление файла
+        try:
+            pygame.mixer.music.unload()  # освобождаем файл
+        except:
+            pass
+
+        if os.path.exists(filename):
+            try:
+                os.remove(filename)
+            except Exception as e:
+                print("Не удалось удалить файл:", e)
+                
 # загружаем конфиг
 with open("commands.json", "r", encoding="utf-8") as f:
     config = json.load(f)
